@@ -2682,7 +2682,7 @@ d-citation-list .references .title {
         highlight: function (text, grammar, language) {
           var env = {
             code: text,
-            grammar: grammar,
+            grammar: new Map(Object.entries(grammar)),
             language: language,
           };
           _.hooks.run("before-tokenize", env);
@@ -2692,13 +2692,13 @@ d-citation-list .references .title {
         },
 
         tokenize: function (text, grammar) {
-          var rest = grammar.rest;
+          var rest = grammar.get('rest');
           if (rest) {
-            for (var token in rest) {
-              grammar[token] = rest[token];
+            for (var token of rest.keys()) {
+              grammar.set(token, rest.get(token));
             }
 
-            delete grammar.rest;
+            grammar.delete('rest');
           }
 
           var tokenList = new LinkedList();
@@ -3019,7 +3019,7 @@ d-citation-list .references .title {
                 code = message.code,
                 immediateClose = message.immediateClose;
 
-              _self.postMessage(_.highlight(code, _.languages[lang], lang));
+              _self.postMessage(_.highlight(code, _.languages.get(lang), lang));
               if (immediateClose) {
                 _self.close();
               }
