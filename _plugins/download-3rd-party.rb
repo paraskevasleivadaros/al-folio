@@ -3,7 +3,7 @@ Jekyll::Hooks.register :site, :after_init do |site|
   require 'digest'
   require 'fileutils'
   require 'nokogiri'
-  require 'open-uri'
+  require 'net/http'
   require 'uri'
 
   font_file_types = ['otf', 'ttf', 'woff', 'woff2']
@@ -148,7 +148,9 @@ Jekyll::Hooks.register :site, :after_init do |site|
       puts "Downloading fonts from #{url} to #{dest}"
       # download the css file with a fake user agent to force downloading woff2 fonts instead of ttf
       # user agent from https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome
-      doc = Nokogiri::HTML(URI.open(url, "User-Agent" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"))
+      uri = URI.parse(url)
+      response = Net::HTTP.get(uri, "User-Agent" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+      doc = Nokogiri::HTML(response)
       css = CssParser::Parser.new
       css.load_string! doc.document.text
 
